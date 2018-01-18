@@ -51,7 +51,7 @@ router.use(function (req, res, next) {
 router.route('/v1/user/uploadUserImage').post(controller.uploadUserImage);
 
 //updating the user information
-router.route('/v1/user/updateUserInfo/:email').post(controller.updateUserDetails);
+router.route('/v1/user/updateUserInfo').post(controller.updateUserDetails);
 
 //requesting for the user list details
 router.route('/v1/user/getUserList/:seed/:page/:result').get(controller.getUserCompleteList);

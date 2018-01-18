@@ -1,15 +1,15 @@
 
-//imoporting the user model from the models
+//importing the user model from the models
 var User = require('../models/user');
 var jwt = require('jsonwebtoken');
 var express= require('express');
+require("jwt-decode");
 var app=express();
 app.set('superSecret','react-native-token-demo');
 var bcrypt=require('bcrypt');
 var request=require('request');
-var options={
-
-}
+var atob = require('atob');
+//var jwtDecode = require('jwt-decode');
 
 exports.createUser=(request,response)=>{
     if(!request.body.email)
@@ -219,7 +219,11 @@ exports.uploadUserImage=(req,res)=>{
 //updating the user data or informations
 exports.updateUserDetails =(req,res)=>
 {
-    var email =req.params.email;
+    var token=req.headers['x-access-token'];
+    const base64Url = token.split('.')[1];
+    var tokenData = atob(base64Url);
+    var userEmail=JSON.parse(tokenData).email;
+    console.log("user"+userEmail)
     if(!req.body.name&&!req.body.password)
         res.json({
             message: "Please enter the complete information"
@@ -230,8 +234,7 @@ exports.updateUserDetails =(req,res)=>
         var updatedPassword =req.body.password;
         var salt = bcrypt.genSaltSync(10);
         var updatedPasswordHash=bcrypt.hashSync(updatedPassword,salt);
-
-     User.findOneAndUpdate({email:email},{$set:{
+     User.findOneAndUpdate({email:userEmail},{$set:{
                 name:updatedName,
                 password:updatedPasswordHash,
             }},{new: true},(err,response)=>{
@@ -264,7 +267,7 @@ exports.getUserCompleteList=(req,res)=>{
     console.log("Url"+url);
     if(req.params.page&&req.params.seed&&req.params.result)
     {
-    request.get(url,(error,response,body)=>{
+    request.get(url,(error,body)=>{
         if(error)
             res.json({
                 status:false,
